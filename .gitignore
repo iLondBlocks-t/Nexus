@@ -1,0 +1,32 @@
+# dependencies & build output
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# NEXUS runtime data: databases, workspaces, engine state, encryption keys, artifacts
+data/
+.nexus-data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+.secret-key
+.env
+.env.*
+!.env.example
+
+# logs and OS/editor noise
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# never commit credentials
+*.pem
+*.key
+.netrc
+.git-credentials
