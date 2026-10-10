@@ -79,3 +79,4 @@ Last updated: 2026-10-10. Verification evidence is in the README ("What is verif
 - The job output query filters JSON text with `LIKE`; move to a structured column when job volume grows.
 - Arabic copy is unreviewed by a native speaker.
 - `npm test` takes about 30 seconds and needs user namespaces on the host.
+- [~] Android APK: Capacitor shell and `android-apk.yml` workflow written; the first GitHub Actions run is the verification. Needs repository variable `NEXUS_APP_URL` pointing to a deployed https server.

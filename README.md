@@ -154,6 +154,14 @@ Connect GitHub in **Settings** (requires `NEXUS_GITHUB_CLIENT_ID` and `NEXUS_GIT
 - **Arabic copy review.** The Arabic strings are written but have not been reviewed by a native speaker.
 - **CI run.** The workflow is written but has not been executed on GitHub yet.
 
+## Android APK
+
+`apps/web` includes a Capacitor shell (`app.nexus.builder`). The workflow `.github/workflows/android-apk.yml` builds a **debug** APK and uploads it as the run artifact `nexus-debug-apk`.
+
+- Set the repository variable `NEXUS_APP_URL` to your deployed `https://` NEXUS server. The APK loads that server, so same-origin `/api`, cookies and CSRF work unchanged. Without it, the APK shows only the bundled UI, which cannot reach the API.
+- Install by sideloading the APK on Android 7.0 or newer (minimum SDK 24). A debug build is signed with the debug key and is not for Play Store distribution.
+- **Not verified in this build environment** (no Android SDK here). The first workflow run on GitHub is the test.
+
 ## Licence
 
 No licence has been chosen yet; the package is marked `UNLICENSED`. The project owner needs to pick one before the code is shared more widely.

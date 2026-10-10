@@ -1,0 +1,73 @@
+# Builds a debug Android APK of the NEXUS shell (apps/web, Capacitor).
+# Set the repository variable NEXUS_APP_URL to your deployed https:// NEXUS server, or the APK
+# will load the bundled UI, which cannot reach the API.
+name: android-apk
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "apps/web/**"
+      - "packages/shared/**"
+      - "package-lock.json"
+      - ".github/workflows/android-apk.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      NEXUS_APP_URL: ${{ vars.NEXUS_APP_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Warn if no server URL is configured
+        run: |
+          if [ -z "$NEXUS_APP_URL" ]; then
+            echo "::warning::NEXUS_APP_URL is not set. The APK will load the bundled UI, which cannot reach the API."
+            echo "**Warning:** NEXUS_APP_URL is not set. The APK loads the bundled UI only." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "APK will load $NEXUS_APP_URL" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - run: npm ci
+
+      - name: Build shared package and web app
+        run: npm run build -w @nexus/shared && npm run build -w @nexus/web
+
+      - name: Sync web build into the Android project
+        working-directory: apps/web
+        run: npx cap sync android
+
+      - name: Build debug APK
+        working-directory: apps/web/android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Record APK checksum
+        working-directory: apps/web/android/app/build/outputs/apk/debug
+        run: |
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          sha256sum app-debug.apk | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nexus-debug-apk
+          path: apps/web/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
